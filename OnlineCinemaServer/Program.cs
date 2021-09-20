@@ -23,6 +23,13 @@ namespace OnlineCinemaServer
         {
             public string id = "";
             public List<long> clients = new List<long>();
+            public Chat()
+            {
+            }
+            public Chat(string id)
+            {
+                this.id = id;
+            }
         }
 
         public static Dictionary<long, Client> clients = new Dictionary<long, Client>();
@@ -32,9 +39,8 @@ namespace OnlineCinemaServer
 
         static void Main()
         {
-            Chat chat = new Chat();
-            chat.id = "Kotya";
-            chats.Add(chat.id, chat);
+            chats.Add("TestChat", new Chat("TestChat"));
+            chats.Add("Kotya", new Chat("Kotya"));
 
             tcpListener.Start();
 
@@ -55,7 +61,7 @@ namespace OnlineCinemaServer
                     //register ip
                     //1 {id 8 bytes}
                     //1 {port 2 bytes} {ip}
-                    case 1: 
+                    case 1:
                         long userId = BitConverter.ToInt64(data, 1);
                         byte[] ipBytes = remoteIp.Address.GetAddressBytes();
                         byte[] portBytes = BitConverter.GetBytes((short)remoteIp.Port);
@@ -90,7 +96,7 @@ namespace OnlineCinemaServer
                 // create id
                 // len 1 {name UTF8}
                 // 'OK' {id 8 bytes}
-                case 1: 
+                case 1:
                     {
                         long id = random.NextInt64();
                         string name = Encoding.UTF8.GetString(buffer, 2, length - 2);
@@ -109,7 +115,7 @@ namespace OnlineCinemaServer
                 // join chat
                 // len 2 {id 8 bytes} {chat id}
                 // 'OK' clientCount {clientIds n*8 bytes}
-                case 2: 
+                case 2:
                     {
                         long id = BitConverter.ToInt64(buffer, 2);
                         string chatId = Encoding.UTF8.GetString(buffer, 10, length - 10);
@@ -168,7 +174,7 @@ namespace OnlineCinemaServer
                         long id = BitConverter.ToInt64(buffer, 2);
                         byte[] portBytes = BitConverter.GetBytes((ushort)clients[id].ip.Port);
                         byte[] ipBytes = clients[id].ip.Address.GetAddressBytes();
-                        byte[] response = new byte[2 + 2+ipBytes.Length];
+                        byte[] response = new byte[2 + 2 + ipBytes.Length];
                         response[0] = (byte)'O';
                         response[1] = (byte)'K';
                         portBytes.CopyTo(response, 2);
